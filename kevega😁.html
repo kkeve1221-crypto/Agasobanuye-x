@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kwizera Films - Agasobanuye Kinyarwanda</title>
+    <meta name="description" content="Reba Agasobanuye, Action, Comedy na Nigeria Movies kuri Kwizera Films">
+    <style>
+        :root { --red: #e50914; --black: #141414; --dark: #181818; --gray: #808080; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--black); color: #fff; font-family: 'Helvetica Neue', Arial, sans-serif; overflow-x: hidden; }
+
+        /* Loading Screen */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--black); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+       .loader-logo { color: var(--red); font-size: 3rem; font-weight: 900; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Header */
+       .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 4%; background: linear-gradient(180deg, rgba(0,0,0,0.9) 10%, transparent); position: fixed; width: 100%; z-index: 100; transition: background 0.3s; }
+       .header.scrolled { background: var(--black); }
+       .logo { color: var(--red); font-size: 28px; font-weight: 900; cursor: pointer; user-select: none; }
+       .nav { display: flex; gap: 20px; }
+       .nav a { color: #e5e5e5; text-decoration: none; font-size: 14px; transition: color 0.3s; }
+       .nav a:hover { color: #b3b3b3; }
+       .search-box { position: relative; }
+       .search { background: rgba(0,0,0,0.7); border: 1px solid #333; color: white; padding: 8px 40px 8px 15px; border-radius: 4px; width: 250px; }
+
+        /* Hero */
+       .hero { height: 85vh; background: linear-gradient(to right, rgba(0,0,0,0.9) 0%, transparent 60%), url('https://images.unsplash.com/photo-1489599849927-2ee91cede3b?auto=format&fit=crop&w=1920&q=80') center/cover; display: flex; align-items: center; padding: 0 4%; }
+       .hero-content { max-width: 600px; margin-top: 60px; }
+       .hero-content h1 { font-size: 3.5rem; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+       .hero-content p { font-size: 1.2rem; margin-bottom: 25px; line-height: 1.5; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+       .btn { padding: 12px 30px; margin-right: 15px; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+       .btn-play { background: white; color: black; }
+       .btn-play:hover { background: rgba(255,255,255,0.8); }
+       .btn-info { background: rgba(109,109,110,0.7); color: white; }
+       .btn-info:hover { background: rgba(109,109,110,0.5); }
+       .btn-mpesa { background: #00A651; color: white; margin-top: 15px; }
+
+        /* Rows */
+       .row { padding: 30px 4%; }
+       .row-title { font-size: 1.5rem; margin-bottom: 15px; font-weight: 700; }
+       .movies { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 20px; scrollbar-width: none; }
+       .movies::-webkit-scrollbar { display: none; }
+       .movie { min-width: 220px; height: 330px; border-radius: 4px; overflow: hidden; cursor: pointer; transition: transform 0.3s ease, z-index 0.3s; position: relative; }
+       .movie:hover { transform: scale(1.08); z-index: 10; }
+       .movie img { width: 100%; height: 100%; object-fit: cover; }
+       .movie-info { position: absolute; bottom: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); width: 100%; padding: 20px 10px 10px; }
+       .movie-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; }
+       .movie-add { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); border: 2px solid white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+       .movie:hover.movie-add { opacity: 1; }
+
+        /* Video Player */
+        #player { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 1000; display: none; }
+        #videoPlayer { width: 100%; height: 100%; }
+       .close-player { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; cursor: pointer; z-index: 1001; background: rgba(0,0,0,0.5); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        /* Admin Panel */
+        #adminPanel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--dark); padding: 30px; border-radius: 8px; z-index: 2000; width: 90%; max-width: 550px; border: 1px solid #333; }
+        #adminPanel h2 { color: var(--red); margin-bottom: 5px; }
+        #adminPanel.admin-email { color: var(--gray); font-size: 12px; margin-bottom: 20px; }
+        #adminPanel input, #adminPanel select, #adminPanel textarea { width: 100%; padding: 12px; margin: 8px 0; background: #333; border: 1px solid #555; color: white; border-radius: 4px; font-family: inherit; }
+        #adminPanel button { width: 100%; padding: 12px; background: var(--red); color: white; border: none; border-radius: 4px; margin-top: 10px; cursor: pointer; font-weight: bold; }
+        #adminPanel button:hover { background: #f40612; }
+       .admin-actions { display: flex; gap: 10px; margin-top: 15px; }
+       .admin-actions button { flex: 1; }
+
+        /* Footer */
+       .footer { text-align: center; padding: 50px 4% 30px; color: var(--gray); border-top: 1px solid #333; margin-top: 50px; }
+       .footer p { margin: 8px 0; font-size: 14px; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+           .hero-content h1 { font-size: 2rem; }
+           .movie { min-width: 140px; height: 210px; }
+           .nav { display: none; }
+           .search { width: 150px; }
+           .btn { padding: 10px 20px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loader">
+        <div class="loader-logo">KWIZERA FILMS</div>
+    </div>
+
+    <!-- Header -->
+    <div class="header" id="header">
+        <div class="logo" id="logo">KWIZERA FILMS</div>
+        <div class="nav">
+            <a href="#home">Home</a>
+            <a href="#agasobanuye">Agasobanuye</a>
+            <a href="#action">Action</a>
+            <a href="#comedy">Comedy</a>
+            <a href="#nigeria">Nigeria</a>
+        </div>
+        <div class="search-box">
+            <input type="text" class="search" placeholder="Shakisha film..." id="searchInput">
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero" id="home">
+        <div class="hero-content">
+            <h1 id="heroTitle">John Wick 4: Agasobanuye</h1>
+            <p id="heroDesc">Umwishi w'abishi arasubira mu kazi. Agasobanuye Kanono mu Kinyarwanda. Reba ubu kubuntu.</p>
+            <button class="btn btn-play" onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', 'John Wick 4')">▶ Play</button>
+            <button class="btn btn-info" onclick="playMovie('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', 'Agasobanuye Special')">ℹ️ More Info</button>
+            <br>
+            <button class="btn btn-mpesa" onclick="showMpesa()">📱 Ishyura 500 RWF na Mpesa</button>
+        </div>
+    </div>
+
+    <!-- Rows -->
+    <div class="row" id="agasobanuye">
+        <h2 class="row-title">Agasobanuye Nshya</h2>
+        <div class="movies" id="agasobanuye-movies"></div>
+    </div>
+
+    <div class="row" id="action">
+        <h2 class="row-title">Action</h2>
+        <div class="movies" id="action-movies"></div>
+    </div>
+
+    <div class="row" id="comedy">
+        <h2 class="row-title">Comedy Agasobanuye</h2>
+        <div class="movies" id="comedy-movies"></div>
+    </div>
+
+    <div class="row" id="nigeria">
+        <h2 class="row-title">Nigeria Movies</h2>
+        <div class="movies" id="nigeria-movies"></div>
+    </div>
+
+    <div class="row" id="mylist">
+        <h2 class="row-title">My List</h2>
+        <div class="movies" id="mylist-movies"></div>
+    </div>
+
+    <!-- Video Player -->
+    <div id="player">
+        <span class="close-player" onclick="closePlayer()">&times;</span>
+        <video controls autoplay id="videoPlayer"></video>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel">
+        <h2>Admin Panel - Kwizera Films</h2>
+        <p class="admin-email">Logged in as: kkeve1221@gmail.com</p>
+        <input type="text" id="filmTitle" placeholder="Izina rya Film" required>
+        <input type="text" id="filmImage" placeholder="Link y'ifoto ya Poster - https://..." required>
+        <input type="text" id="filmVideo" placeholder="Link ya Video MP4 cyangwa YouTube" required>
+        <select id="filmCategory" required>
+            <option value="">Hitamo Category</option>
+            <option value="agasobanuye">Agasobanuye</option>
+            <option value="action">Action</option>
+            <option value="comedy">Comedy</option>
+            <option value="nigeria">Nigeria</option>
+            <option value="horror">Horror</option>
+        </select>
+        <textarea id="filmDesc" placeholder="Description ya film..." rows="3"></textarea>
+        <button onclick="addNewFilm()">Ongeramo Film</button>
+        <div class="admin-actions">
+            <button onclick="exportData()" style="background:#555;">Export Data</button>
+            <button onclick="clearAllFilms()" style="background:#333;">Siba Zose</button>
+            <button onclick="closeAdmin()" style="background:#222;">Funga</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2026 Kwizera Films. All rights reserved.</p>
+        <p>Gmail: kkeve1221@gmail.com | Privacy Policy | Terms of Service</p>
+        <p style="font-size:12px; margin-top:15px;">Kanda inshuro 5 kuri LOGO hejuru kugira ngo ufungure Admin Panel</p>
+    </div>
+
+<script>
+// Loading Screen
+window.addEventListener('load', () => {
+    setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 2000);
+});
+
+// Header Scroll Effect
+window.addEventListener('scroll', () => {
+    document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Default Films Database
+let films = JSON.parse(localStorage.getItem('kwizeraFilms')) || [
+    {title: "John Wick 4 Agasobanuye", img: "https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg", video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", category: "agasobanuye", desc: "Agasobanuye Kanono"},
+    {title: "Avatar 2: The Way of Water", img: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg", video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", category: "action", desc: "Sci-Fi Action"},
+    {title: "Minions: Agasobanuye", img: "https://image.tmdb.org/t/p/w500/wKiOkZTN9lUUUNZLmtnwubZYwiV.jpg", video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", category: "comedy", desc: "Comedy Agasobanuye"},
+    {title: "Fast X", img: "https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg", video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", category: "action", desc: "Racing Action"},
+    {title: "King of Boys - Nigeria", img: "https://image.tmdb.org/t/p/w500/7RyHsO4yDXtBv1zUU3mTpHeQ0d5.jpg", video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4", category: "nigeria", desc: "Nigeria Drama"},
+    {title: "The Equalizer 3", img: "https://image.tmdb.org/t/p/w500/b0Ej6fnXAP8fK75hlyi2jKqdhHz.jpg", video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", category: "action", desc: "Action Thriller"},
+    {title: "The Conjuring Agasobanuye", img: "https://image.tmdb.org/t/p/w500/wE8o7zy5t2Vyb60oqwKT3ZN9mMR.jpg", video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4", category: "horror", desc: "Horror Agasobanuye"},
+    {title: "Black Panther", img: "https://image.tmdb.org/t/p/w500/uxzzxijgPIY7slzFvMotPv8wjKA.jpg", video: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", category: "action", desc: "Superhero Action"}
+];
+
+let myList = JSON.parse(localStorage.getItem('kwizeraMyList')) || [];
+
+// Display Films
+function displayFilms() {
+    const categories = ['agasobanuye', 'action', 'comedy', 'nigeria', 'horror'];
+    categories.forEach(cat => {
+        const container = document.getElementById(cat + '-movies');
+        if(container) container.innerHTML = '';
+    });
+
+    films.forEach((film, index) => {
+        const movieDiv = `
+            <div class="movie" onclick="playMovie('${film.video}', '${film.title}')">
+                <img src="${film.img}" alt="${film.title}" loading="lazy">
+                <div class="movie-add" onclick="event.stopPropagation(); addToMyList(${index})">+</div>
+                <div class="movie-info">
+                    <div class="movie-title">${film.title}</div>
+                </div>
+            </div>`;
+
+        const container = document.getElementById(film.category + '-movies');
+        if(container) container.innerHTML += movieDiv;
+    });
+
+    displayMyList();
+}
+
+function displayMyList() {
+    const container = document.getElementById('mylist-movies');
+    container.innerHTML = '';
+    myList.forEach((film, index) => {
+        container.innerHTML += `
+            <div class="movie" onclick="playMovie('${film.video}', '${film.title}')">
+                <img src="${film.img}" alt="${film.title}">
+                <div class="movie-add" onclick="event.stopPropagation(); removeFromMyList(${index})">-</div>
+                <div class="movie-info">
+                    <div class="movie-title">${film.title}</div>
+                </div>
+            </div>`;
+    });
+}
+
+// Video Player
+function playMovie(videoSrc, title) {
+    document.getElementById('player').style.display = 'block';
+    document.getElementById('videoPlayer').src = videoSrc;
+    document.getElementById('heroTitle').textContent = title;
+    document.body.style.overflow = 'hidden';
+}
+
+function closePlayer() {
+    document.getElementById('player').style.display = 'none';
+    document.getElementById('videoPlayer').pause();
+    document.body.style.overflow = 'auto';
+}
+
+// My List
+function addToMyList(index) {
+    const film = films[index];
+    if(!myList.find(f => f.title === film.title)) {
+        myList.push(film);
+        localStorage.setItem('kwizeraMyList', JSON.stringify(myList));
+        displayMyList();
+        alert('Ongewe muri My List!');
+    }
+}
+
+function removeFromMyList(index) {
+    myList.splice(index, 1);
+    localStorage.setItem('kwizeraMyList', JSON.stringify(myList));
+    displayMyList();
+}
+
+// Admin Panel - 5 clicks on logo
+let clickCount = 0;
+document.getElementById('logo').onclick = function() {
+    clickCount++;
+    if(clickCount === 5) {
+        document.getElementById('adminPanel').style.display = 'block';
+        clickCount = 0;
+    }
+    setTimeout(() => { clickCount = 0; }, 2000);
+}
+
+function addNewFilm() {
+    const newFilm = {
+        title: document.getElementById('filmTitle').value,
+        img: document.getElementById('filmImage').value,
+        video: document.getElementById('filmVideo').value,
+        category: document.getElementById('filmCategory').value,
+        desc: document.getElementById('filmDesc').value
+    };
+
+    if(!newFilm.title ||!newFilm.img ||!newFilm.video ||!newFilm.category) {
+        alert('Uzuza amakuru yose asabwa!');
+        return;
+    }
+
+    films.push(newFilm);
+    localStorage.setItem('kwizeraFilms', JSON.stringify(films));
+    displayFilms();
+    closeAdmin();
+    alert('Film yongewemo neza! Reba muri ' + newFilm.category);
+
+    // Clear form
+    document.getElementById('filmTitle').value = '';
+    document.getElementById('filmImage').value = '';
+    document.getElementById('filmVideo').value = '';
+    document.getElementById('filmCategory').value = '';
+    document.getElementById('filmDesc').value = '';
+}
+
+function closeAdmin() {
+    document.getElementById('adminPanel').style.display = 'none';
+}
+
+function exportData() {
+    const data = JSON.stringify(films, null, 2);
+    const blob = new Blob([data], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'kwizera-films-backup.json';
+    a.click();
+}
+
+function clearAllFilms() {
+    if(confirm('Urabishaka? Bizasiba films zose!')) {
+        films = [];
+        localStorage.removeItem('kwizeraFilms');
+        displayFilms();
+    }
+}
+
+// Search
+document.getElementById('searchInput').onkeyup = function(e) {
+    const search = e.target.value.toLowerCase();
+    if(search === '') {
+        displayFilms();
+        return;
+    }
+
+    const filtered = films.filter(f => f.title.toLowerCase().includes(search));
+    const categories = ['agasobanuye', 'action', 'comedy', 'nigeria', 'horror'];
+    categories.forEach(cat => {
+        const container = document.getElementById(cat + '-movies');
+        if(container) container.innerHTML = '';
+    });
+
+    filtered.forEach((film, index) => {
+        const movieDiv = `
+            <div class="movie" onclick="playMovie('${film.video}', '${film.title}')">
+                <img src="${film.img}" alt="${film.title}">
+                <div class="movie-info">
+                    <div class="movie-title">${film.title}</div>
+                </div>
+            </div>`;
+        const container = document.getElementById(film.category + '-movies');
+        if(container) container.innerHTML += movieDiv;
+    });
+}
+
+// Mpesa
+function showMpesa() {
+    alert('Ishyura 500 RWF na Mpesa kuri:\n\nNumero: 0788 XXX XXX\nIzina: Kwizera Films\n\nNyuma yo kwishyura, oherereza screenshot kuri: kkeve1221@gmail.com\n\nUrahabwa access y\'ukwezi kose!');
+}
+
+// Initialize
+displayFilms();
+</script>
+</body>
+</html>
